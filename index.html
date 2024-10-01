@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Google Maps with Beirut Locations</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQhWBdv9mkfIjlEj8tffCmFob-eLuJ5u4"></script>
+    <script>
+      let map;
+      let markers = [];
+
+      // Initialize Google Map
+      function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: 33.8938, lng: 35.5018 }, // Center on Beirut
+          zoom: 12,
+        });
+
+        // Fetch data from Google Sheets and add markers
+        fetchSheetData();
+      }
+
+      // Fetch Google Sheet data
+      async function fetchSheetData() {
+        const sheetId = '2PACX-1vQxtGISeeEn9UXY1aP8tdPbgAvPdgawcBPcR-FrQMfyhDQGwwr2bRXqutNA9sq1pnd-5DqF-KLfSq_q';
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1?key=AIzaSyBjjbabLXCBARLYoVhMQeRjkxcf2SSbepU`;
+        
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+          const rows = data.values;
+
+          // Skip the first row (header) and plot locations
+          for (let i = 1; i < rows.length; i++) {
+            const name = rows[i][0];
+            const lat = parseFloat(rows[i][1]);
+            const lng = parseFloat(rows[i][2]);
+            addMarker(name, lat, lng);
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      }
+
+      // Add a marker to the map
+      function addMarker(name, lat, lng) {
+        const marker = new google.maps.Marker({
+          position: { lat, lng },
+          map,
+          title: name,
+        });
+
+        markers.push(marker);
+      }
+    </script>
+    <style>
+      /* Add some CSS for styling */
+      #map {
+        height: 500px;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body onload="initMap()">
+    <h3>Locations in Beirut</h3>
+    <div id="map"></div>
+  </body>
+</html>
