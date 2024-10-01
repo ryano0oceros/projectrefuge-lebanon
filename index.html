@@ -14,29 +14,21 @@
           zoom: 12,
         });
 
-        // Fetch data from Google Sheets and add markers
-        fetchSheetData();
+        // Use placeholder data to add markers for now
+        addPlaceholderMarkers();
       }
 
-      // Fetch Google Sheet data
-      async function fetchSheetData() {
-        const sheetId = '1QdatcZu5Jjfe8Qff0mcFuDL5Rg4KLuAA_GH6oYjd83U';
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1?key=AIzaSyBjjbabLXCBARLYoVhMQeRjkxcf2SSbepU`;
-        
-        try {
-          const response = await fetch(url);
-          const data = await response.json();
-          const rows = data.values;
+      // Placeholder markers for testing
+      function addPlaceholderMarkers() {
+        const locations = [
+          { name: "Place 1", lat: 33.88863, lng: 35.49548 },
+          { name: "Place 2", lat: 33.8938, lng: 35.5018 },
+          { name: "Place 3", lat: 33.89691, lng: 35.51238 },
+        ];
 
-          // Skip the first row (header) and plot locations
-          for (let i = 1; i < rows.length; i++) {
-            const name = rows[i][0];
-            const lat = parseFloat(rows[i][1]);
-            const lng = parseFloat(rows[i][2]);
-            addMarker(name, lat, lng);
-          }
-        } catch (error) {
-          console.error("Error fetching data:", error);
+        for (let i = 0; i < locations.length; i++) {
+          const { name, lat, lng } = locations[i];
+          addMarker(name, lat, lng);
         }
       }
 
@@ -50,6 +42,28 @@
 
         markers.push(marker);
       }
+
+      // Commented out for now: Fetch Google Sheet data
+      // async function fetchSheetData() {
+      //   const sheetId = '1QdatcZu5Jjfe8Qff0mcFuDL5Rg4KLuAA_GH6oYjd83U';
+      //   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1?key=AIzaSyBjjbabLXCBARLYoVhMQeRjkxcf2SSbepU`;
+
+      //   try {
+      //     const response = await fetch(url);
+      //     const data = await response.json();
+      //     const rows = data.values;
+
+      //     // Skip the first row (header) and plot locations
+      //     for (let i = 1; i < rows.length; i++) {
+      //       const name = rows[i][0];
+      //       const lat = parseFloat(rows[i][1]);
+      //       const lng = parseFloat(rows[i][2]);
+      //       addMarker(name, lat, lng);
+      //     }
+      //   } catch (error) {
+      //     console.error("Error fetching data:", error);
+      //   }
+      // }
     </script>
     <style>
       /* Add some CSS for styling */
