@@ -14,56 +14,44 @@
           zoom: 12,
         });
 
-        // Use placeholder data to add markers for now
+        // Use placeholder data to add markers
         addPlaceholderMarkers();
       }
 
-      // Placeholder markers for testing
+      // Placeholder markers for testing with descriptions
       function addPlaceholderMarkers() {
         const locations = [
-          { name: "Place 1", lat: 33.88863, lng: 35.49548 },
-          { name: "Place 2", lat: 33.8938, lng: 35.5018 },
-          { name: "Place 3", lat: 33.89691, lng: 35.51238 },
+          { name: "Place 1", lat: 33.88863, lng: 35.49548, description: "This is a custom description for Place 1." },
+          { name: "Place 2", lat: 33.8938, lng: 35.5018, description: "This is a custom description for Place 2." },
+          { name: "Place 3", lat: 33.89691, lng: 35.51238, description: "This is a custom description for Place 3." },
         ];
 
         for (let i = 0; i < locations.length; i++) {
-          const { name, lat, lng } = locations[i];
-          addMarker(name, lat, lng);
+          const { name, lat, lng, description } = locations[i];
+          addMarker(name, lat, lng, description);
         }
       }
 
-      // Add a marker to the map
-      function addMarker(name, lat, lng) {
+      // Add a marker to the map with a custom description
+      function addMarker(name, lat, lng, description) {
         const marker = new google.maps.Marker({
           position: { lat, lng },
           map,
           title: name,
         });
 
+        // Create an info window with the description
+        const infoWindow = new google.maps.InfoWindow({
+          content: `<h3>${name}</h3><p>${description}</p>`,
+        });
+
+        // Add a click listener to open the info window when the marker is clicked
+        marker.addListener('click', () => {
+          infoWindow.open(map, marker);
+        });
+
         markers.push(marker);
       }
-
-      // Commented out for now: Fetch Google Sheet data
-      // async function fetchSheetData() {
-      //   const sheetId = '1QdatcZu5Jjfe8Qff0mcFuDL5Rg4KLuAA_GH6oYjd83U';
-      //   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1?key=AIzaSyBjjbabLXCBARLYoVhMQeRjkxcf2SSbepU`;
-
-      //   try {
-      //     const response = await fetch(url);
-      //     const data = await response.json();
-      //     const rows = data.values;
-
-      //     // Skip the first row (header) and plot locations
-      //     for (let i = 1; i < rows.length; i++) {
-      //       const name = rows[i][0];
-      //       const lat = parseFloat(rows[i][1]);
-      //       const lng = parseFloat(rows[i][2]);
-      //       addMarker(name, lat, lng);
-      //     }
-      //   } catch (error) {
-      //     console.error("Error fetching data:", error);
-      //   }
-      // }
     </script>
     <style>
       /* Add some CSS for styling */
