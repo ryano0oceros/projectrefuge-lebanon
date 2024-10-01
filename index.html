@@ -6,6 +6,17 @@
     <script>
       let map;
       let markers = [];
+      let infoWindows = [];
+
+      // Custom marker icons
+      const icons = {
+        food: {
+          icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
+        },
+        health: {
+          icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+        },
+      };
 
       // Initialize Google Map
       function initMap() {
@@ -18,26 +29,27 @@
         addPlaceholderMarkers();
       }
 
-      // Placeholder markers for testing with descriptions
+      // Placeholder markers for testing with descriptions and categories
       function addPlaceholderMarkers() {
         const locations = [
-          { name: "Place 1", lat: 33.88863, lng: 35.49548, description: "This is a custom description for Place 1." },
-          { name: "Place 2", lat: 33.8938, lng: 35.5018, description: "This is a custom description for Place 2." },
-          { name: "Place 3", lat: 33.89691, lng: 35.51238, description: "This is a custom description for Place 3." },
+          { name: "Place 1", lat: 33.88863, lng: 35.49548, description: "This is a custom description for Place 1.", category: "food" },
+          { name: "Place 2", lat: 33.8938, lng: 35.5018, description: "This is a custom description for Place 2.", category: "health" },
+          { name: "Place 3", lat: 33.89691, lng: 35.51238, description: "This is a custom description for Place 3.", category: "food" },
         ];
 
         for (let i = 0; i < locations.length; i++) {
-          const { name, lat, lng, description } = locations[i];
-          addMarker(name, lat, lng, description);
+          const { name, lat, lng, description, category } = locations[i];
+          addMarker(name, lat, lng, description, category);
         }
       }
 
-      // Add a marker to the map with a custom description
-      function addMarker(name, lat, lng, description) {
+      // Add a marker to the map with a custom description and category
+      function addMarker(name, lat, lng, description, category) {
         const marker = new google.maps.Marker({
           position: { lat, lng },
           map,
           title: name,
+          icon: icons[category].icon,
         });
 
         // Create an info window with the description
@@ -47,10 +59,38 @@
 
         // Add a click listener to open the info window when the marker is clicked
         marker.addListener('click', () => {
+          // Close all other info windows
+          closeAllInfoWindows();
           infoWindow.open(map, marker);
         });
 
-        markers.push(marker);
+        // Store marker and its category
+        markers.push({ marker, category });
+        infoWindows.push(infoWindow);
+      }
+
+      // Close all open info windows
+      function closeAllInfoWindows() {
+        infoWindows.forEach((infoWindow) => {
+          infoWindow.close();
+        });
+      }
+
+      // Filter markers based on category (food or health)
+      function filterMarkers() {
+        const showFood = document.getElementById("foodFilter").checked;
+        const showHealth = document.getElementById("healthFilter").checked;
+
+        // Loop through all markers and show/hide them based on checkbox selection
+        markers.forEach(({ marker, category }) => {
+          if (category === "food" && showFood) {
+            marker.setVisible(true);
+          } else if (category === "health" && showHealth) {
+            marker.setVisible(true);
+          } else {
+            marker.setVisible(false);
+          }
+        });
       }
     </script>
     <style>
@@ -59,10 +99,17 @@
         height: 500px;
         width: 100%;
       }
+      #filters {
+        margin-top: 10px;
+      }
     </style>
   </head>
   <body onload="initMap()">
     <h3>Locations in Beirut</h3>
     <div id="map"></div>
+    <div id="filters">
+      <label><input type="checkbox" id="foodFilter" checked onclick="filterMarkers()"> Food</label>
+      <label><input type="checkbox" id="healthFilter" checked onclick="filterMarkers()"> Health Services</label>
+    </div>
   </body>
 </html>
