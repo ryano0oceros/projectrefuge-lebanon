@@ -11,10 +11,13 @@
       // Custom marker icons
       const icons = {
         food: {
-          icon: 'https://maps.gstatic.com/mapfiles/ms2/micons/snack_bar.png',
+          icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
         },
         health: {
-          icon: 'https://maps.gstatic.com/mapfiles/ms2/micons/hospitals.png',
+          icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+        },
+        shelter: {
+          icon: 'https://maps.gstatic.com/mapfiles/ms2/micons/campground.png',
         },
       };
 
@@ -22,29 +25,51 @@
       function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
           center: { lat: 33.8938, lng: 35.5018 }, // Center on Beirut
-          zoom: 14,
+          zoom: 13, // Changed zoom to 13
         });
 
         // Use placeholder data to add markers
         addPlaceholderMarkers();
       }
 
-      // Placeholder markers for testing with descriptions and categories
+      // Placeholder markers for testing with descriptions, categories, and last updated field
       function addPlaceholderMarkers() {
         const locations = [
-          { name: "Place 1", lat: 33.88863, lng: 35.49548, description: "This is a custom description for Place 1.", category: "food" },
-          { name: "Place 2", lat: 33.8938, lng: 35.5018, description: "This is a custom description for Place 2.", category: "health" },
-          { name: "Place 3", lat: 33.89691, lng: 35.51238, description: "This is a custom description for Place 3.", category: "food" },
+          {
+            name: "Place 1",
+            lat: 33.88863,
+            lng: 35.49548,
+            description: "This is a custom description for Place 1.",
+            category: "food",
+            lastUpdated: "2024-09-28",
+          },
+          {
+            name: "Place 2",
+            lat: 33.8938,
+            lng: 35.5018,
+            description: "This is a custom description for Place 2.",
+            category: "health",
+            lastUpdated: "2024-09-29",
+          },
+          {
+            name: "Place 3",
+            lat: 33.89691,
+            lng: 35.51238,
+            description: "This is a custom description for Place 3.",
+            category: "shelter",
+            lastUpdated: "2024-09-25",
+          },
         ];
 
         for (let i = 0; i < locations.length; i++) {
-          const { name, lat, lng, description, category } = locations[i];
-          addMarker(name, lat, lng, description, category);
+          const { name, lat, lng, description, category, lastUpdated } = locations[i];
+          const isStale = checkIfStale(lastUpdated);
+          addMarker(name, lat, lng, description, category, lastUpdated, isStale);
         }
       }
 
-      // Add a marker to the map with a custom description and category
-      function addMarker(name, lat, lng, description, category) {
+      // Add a marker to the map with a custom description, category, and stale check
+      function addMarker(name, lat, lng, description, category, lastUpdated, isStale) {
         const marker = new google.maps.Marker({
           position: { lat, lng },
           map,
@@ -52,9 +77,14 @@
           icon: icons[category].icon,
         });
 
+        // Custom content based on last updated and whether it is stale
+        const content = `<h3>${name}</h3><p>${description}</p>
+          <p><strong>Last Updated:</strong> ${lastUpdated}</p>
+          ${isStale ? '<p style="color:red;"><strong>Stale: Needs Confirmation</strong></p>' : ''}`;
+
         // Create an info window with the description
         const infoWindow = new google.maps.InfoWindow({
-          content: `<h3>${name}</h3><p>${description}</p>`,
+          content: content,
         });
 
         // Add a click listener to open the info window when the marker is clicked
@@ -76,16 +106,28 @@
         });
       }
 
-      // Filter markers based on category (food or health)
+      // Check if the entry is stale (older than 2 days)
+      function checkIfStale(lastUpdated) {
+        const today = new Date();
+        const lastUpdatedDate = new Date(lastUpdated);
+        const timeDiff = today - lastUpdatedDate;
+        const daysDiff = timeDiff / (1000 * 3600 * 24);
+        return daysDiff > 2;
+      }
+
+      // Filter markers based on category (food, health, shelter)
       function filterMarkers() {
         const showFood = document.getElementById("foodFilter").checked;
         const showHealth = document.getElementById("healthFilter").checked;
+        const showShelter = document.getElementById("shelterFilter").checked;
 
         // Loop through all markers and show/hide them based on checkbox selection
         markers.forEach(({ marker, category }) => {
           if (category === "food" && showFood) {
             marker.setVisible(true);
           } else if (category === "health" && showHealth) {
+            marker.setVisible(true);
+          } else if (category === "shelter" && showShelter) {
             marker.setVisible(true);
           } else {
             marker.setVisible(false);
@@ -110,6 +152,7 @@
     <div id="filters">
       <label><input type="checkbox" id="foodFilter" checked onclick="filterMarkers()"> Food</label>
       <label><input type="checkbox" id="healthFilter" checked onclick="filterMarkers()"> Health Services</label>
+      <label><input type="checkbox" id="shelterFilter" checked onclick="filterMarkers()"> Shelter</label>
     </div>
   </body>
 </html>
